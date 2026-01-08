@@ -1,7 +1,10 @@
 package it.sarabanda.app.ui;
 
 import it.sarabanda.app.arduino.ArduinoService;
-import it.sarabanda.app.arduino.ConnectionState;
+import it.sarabanda.app.arduino.ArduinoServiceMock;
+import it.sarabanda.app.arduino.ArduinoServiceReal;
+import it.sarabanda.app.arduino.ConnectionResult;
+import it.sarabanda.app.ui.controller.ConnectionController;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -14,7 +17,7 @@ import java.awt.event.ActionEvent;
 public class MainFrame extends JFrame {
 
     private NumberPanel numberPanel;
-    private ArduinoService arduinoService;
+    private ConnectionController connectionController;
 
     public MainFrame() {
         initFrame();
@@ -22,12 +25,14 @@ public class MainFrame extends JFrame {
 
         numberPanel = new NumberPanel();
         add(numberPanel, BorderLayout.CENTER);
-        arduinoService = new ArduinoService();
+        ArduinoService arduinoService = new ArduinoServiceMock();
+        arduinoService.setNumberListener(number -> numberPanel.showNumber(number));
+        connectionController = new ConnectionController(arduinoService);
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
-                disconnectIfNeeded();
+                connectionController.disconnectIfNeeded();
             }
         });
 
@@ -54,7 +59,7 @@ public class MainFrame extends JFrame {
 
         // Azione Exit
         exitItem.addActionListener(e -> {
-            disconnectIfNeeded();
+            connectionController.disconnectIfNeeded();
             System.exit(0);
         });
 
@@ -71,65 +76,41 @@ public class MainFrame extends JFrame {
     }
 
     private void onConnect(ActionEvent e) {
-        if (arduinoService.getState() == ConnectionState.CONNECTED) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Arduino è già connesso",
-                    "Info",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-            return;
-        }
-
         // TODO: in futuro selezione porta
         //String portName = "COM3"; // macOS: /dev/tty.usbmodemXXXX
         String portName = "/dev/tty.usbmodemXXXX";
-        boolean connected = arduinoService.connect(portName);
-
-        if (connected) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Connessione ad Arduino riuscita.\nSistema pronto.",
-                    "Connesso",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-        } else {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Impossibile connettersi ad Arduino",
-                    "Errore",
-                    JOptionPane.ERROR_MESSAGE
-            );
+        ConnectionResult result = connectionController.connect(portName);
+        switch (result) {
+            case CONNECTED ->
+                    showInfo("Connessione ad Arduino riuscita.\nSistema pronto.");
+            case ALREADY_CONNECTED ->
+                    showInfo("Arduino è già connesso");
+            case ERROR ->
+                    showError("Impossibile connettersi ad Arduino");
         }
     }
 
     private void onDisconnect(ActionEvent e) {
+        ConnectionResult result =
+                connectionController.disconnect();
 
-        if (arduinoService.getState() == ConnectionState.DISCONNECTED) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Arduino non è connesso",
-                    "Info",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-            return;
+        switch (result) {
+            case DISCONNECTED ->
+                    showInfo("Arduino disconnesso");
+            case ALREADY_DISCONNECTED ->
+                    showInfo("Arduino non è connesso");
         }
+    }
 
-        arduinoService.disconnect();
-
+    private void showInfo(String msg) {
         JOptionPane.showMessageDialog(
-                this,
-                "Arduino disconnesso",
-                "Disconnesso",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+                this, msg, "Info", JOptionPane.INFORMATION_MESSAGE);
+        connectionController.startListening();
     }
 
-    private void disconnectIfNeeded() {
-        if (arduinoService != null &&
-                arduinoService.getState() == ConnectionState.CONNECTED) {
-
-            arduinoService.disconnect();
-        }
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(
+                this, msg, "Errore", JOptionPane.ERROR_MESSAGE);
     }
+
 }

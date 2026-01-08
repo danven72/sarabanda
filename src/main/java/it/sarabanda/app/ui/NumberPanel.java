@@ -6,6 +6,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 
 public class NumberPanel extends JPanel {
@@ -17,6 +18,7 @@ public class NumberPanel extends JPanel {
 
         numberLabel = new JLabel("", SwingConstants.CENTER);
         numberLabel.setFont(createBigFont());
+        numberLabel.setForeground(Color.BLUE);
 
         add(numberLabel, BorderLayout.CENTER);
     }

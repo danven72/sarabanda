@@ -1,37 +1,16 @@
 package it.sarabanda.app.arduino;
 
-import com.fazecast.jSerialComm.SerialPort;
+public interface ArduinoService {
+    boolean connect(String portName);
 
-public class ArduinoService {
+    void disconnect();
 
-    private SerialPort port;
-    private ConnectionState state = ConnectionState.DISCONNECTED;
+    ConnectionState getState();
 
-    public boolean connect(String portName) {
-        /*
-        port = SerialPort.getCommPort(portName);
-        //TODO: rendere la velocità di comunicazione configurabile
-        port.setBaudRate(9600);
+    /**
+     * Permette di registrare un listener per i numeri ricevuti
+     */
+    void setNumberListener(NumberListener listener);
 
-        if (port.openPort()) {
-            state = ConnectionState.CONNECTED;
-            return true;
-        }
-
-        return false;
-
-         */
-        return true;
-    }
-
-    public void disconnect() {
-        if (port != null && port.isOpen()) {
-            port.closePort();
-        }
-        state = ConnectionState.DISCONNECTED;
-    }
-
-    public ConnectionState getState() {
-        return state;
-    }
+    void startListening();
 }
