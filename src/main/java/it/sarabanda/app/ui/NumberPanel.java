@@ -61,4 +61,10 @@ public class NumberPanel extends JPanel {
         super.doLayout();
         resizeFont();
     }
+
+    public void clear() {
+        SwingUtilities.invokeLater(() -> {
+            numberLabel.setText("");
+        });
+    }
 }

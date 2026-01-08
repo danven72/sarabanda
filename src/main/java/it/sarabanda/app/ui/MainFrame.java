@@ -5,17 +5,22 @@ import it.sarabanda.app.arduino.ArduinoServiceMock;
 import it.sarabanda.app.arduino.ArduinoServiceReal;
 import it.sarabanda.app.arduino.ConnectionResult;
 import it.sarabanda.app.ui.controller.ConnectionController;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 
 public class MainFrame extends JFrame {
 
+    private JMenuBar mainMenuBar;
+    private boolean fullScreenMode = false;
     private NumberPanel numberPanel;
     private ConnectionController connectionController;
 
@@ -45,11 +50,12 @@ public class MainFrame extends JFrame {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null); // centra la finestra
         setLayout(new BorderLayout());
+        initKeyBindings();
     }
 
     private void initMenu() {
 
-        JMenuBar menuBar = new JMenuBar();
+        mainMenuBar = new JMenuBar();
 
         JMenu commandMenu = new JMenu("Command");
 
@@ -71,8 +77,8 @@ public class MainFrame extends JFrame {
         commandMenu.addSeparator();
         commandMenu.add(exitItem);
 
-        menuBar.add(commandMenu);
-        setJMenuBar(menuBar);
+        mainMenuBar.add(commandMenu);
+        setJMenuBar(mainMenuBar);
     }
 
     private void onConnect(ActionEvent e) {
@@ -82,7 +88,11 @@ public class MainFrame extends JFrame {
         ConnectionResult result = connectionController.connect(portName);
         switch (result) {
             case CONNECTED ->
-                    showInfo("Connessione ad Arduino riuscita.\nSistema pronto.");
+                    {
+                        showInfo("Connessione ad Arduino riuscita.\nSistema pronto.");
+                        connectionController.startListening();
+                        applyFullScreen(true);
+                    }
             case ALREADY_CONNECTED ->
                     showInfo("Arduino è già connesso");
             case ERROR ->
@@ -95,8 +105,11 @@ public class MainFrame extends JFrame {
                 connectionController.disconnect();
 
         switch (result) {
-            case DISCONNECTED ->
-                    showInfo("Arduino disconnesso");
+            case DISCONNECTED -> {
+                numberPanel.clear();
+                showInfo("Arduino disconnesso");
+
+            }
             case ALREADY_DISCONNECTED ->
                     showInfo("Arduino non è connesso");
         }
@@ -105,7 +118,6 @@ public class MainFrame extends JFrame {
     private void showInfo(String msg) {
         JOptionPane.showMessageDialog(
                 this, msg, "Info", JOptionPane.INFORMATION_MESSAGE);
-        connectionController.startListening();
     }
 
     private void showError(String msg) {
@@ -113,4 +125,69 @@ public class MainFrame extends JFrame {
                 this, msg, "Errore", JOptionPane.ERROR_MESSAGE);
     }
 
+    /*
+    private void enterFullScreen() {
+
+        if (fullScreenMode) {
+            return;
+        }
+
+        fullScreenMode = true;
+
+        setJMenuBar(null);      // nasconde menu
+        setUndecorated(true);  // niente bordi
+
+        revalidate();
+        repaint();
+    }
+
+     */
+
+    private void applyFullScreen(boolean enable) {
+
+        if (fullScreenMode == enable) {
+            return;
+        }
+
+        fullScreenMode = enable;
+
+        dispose(); // chiude temporaneamente la finestra
+
+        setUndecorated(enable);
+        setJMenuBar(enable ? null : mainMenuBar);
+
+        setVisible(true);
+    }
+
+    private void initKeyBindings() {
+
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke("ESCAPE"), "exitFullScreen");
+
+        getRootPane().getActionMap()
+                .put("exitFullScreen", new AbstractAction() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        applyFullScreen(false);
+                    }
+                });
+    }
+
+    /*
+    private void exitFullScreen() {
+
+        if (!fullScreenMode) {
+            return;
+        }
+
+        fullScreenMode = false;
+
+        setUndecorated(false);
+        setJMenuBar(mainMenuBar);
+
+        revalidate();
+        repaint();
+    }
+
+     */
 }
