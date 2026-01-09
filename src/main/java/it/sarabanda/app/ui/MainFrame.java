@@ -22,8 +22,8 @@ public class MainFrame extends JFrame {
 
     private JMenuBar mainMenuBar;
     private boolean fullScreenMode = false;
-    private NumberPanel numberPanel;
-    private ConnectionController connectionController;
+    private final NumberPanel numberPanel;
+    private final ConnectionController connectionController;
 
     public MainFrame() {
         initFrame();

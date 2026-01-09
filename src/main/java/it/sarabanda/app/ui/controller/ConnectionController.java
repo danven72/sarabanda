@@ -4,8 +4,6 @@ import it.sarabanda.app.arduino.ArduinoService;
 import it.sarabanda.app.arduino.ConnectionResult;
 import it.sarabanda.app.arduino.ConnectionState;
 
-import java.util.Optional;
-
 public class ConnectionController {
     private final ArduinoService arduinoService;
     private final Runnable onDisconnectUi;

@@ -3,7 +3,6 @@ package it.sarabanda.app.ui;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
