@@ -1,5 +1,6 @@
 package it.sarabanda.app.arduino;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -66,5 +67,10 @@ public class ArduinoServiceMock implements ArduinoService {
                 }
             }
         }, 0, 2000);
+    }
+
+    @Override
+    public Optional<String> findArduinoPort() {
+        return Optional.of("MOCK_PORT");
     }
 }

@@ -2,6 +2,8 @@ package it.sarabanda.app.arduino;
 
 import com.fazecast.jSerialComm.SerialPort;
 
+import java.util.Optional;
+
 public class ArduinoServiceReal implements ArduinoService {
 
     private NumberListener listener;
@@ -68,11 +70,28 @@ public class ArduinoServiceReal implements ArduinoService {
                 }
 
             } catch (Exception e) {
+                e.printStackTrace();
                 state = ConnectionState.DISCONNECTED;
             }
         }, "Arduino-Serial-Listener");
 
         serialThread.setDaemon(true);
         serialThread.start();
+    }
+
+    @Override
+    public Optional<String> findArduinoPort() {
+
+        for (SerialPort portFound : SerialPort.getCommPorts()) {
+            String desc = portFound.getDescriptivePortName().toLowerCase();
+
+            if (desc.contains("arduino") ||
+                    desc.contains("usb") ||
+                    desc.contains("serial")) {
+                return Optional.of(portFound.getSystemPortName());
+            }
+        }
+
+        return Optional.empty();
     }
 }

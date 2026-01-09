@@ -1,5 +1,7 @@
 package it.sarabanda.app.arduino;
 
+import java.util.Optional;
+
 public interface ArduinoService {
     boolean connect(String portName);
 
@@ -13,4 +15,6 @@ public interface ArduinoService {
     void setNumberListener(NumberListener listener);
 
     void startListening();
+
+    Optional<String> findArduinoPort();
 }

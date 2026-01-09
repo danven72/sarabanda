@@ -89,10 +89,7 @@ public class MainFrame extends JFrame {
     }
 
     private void onConnect(ActionEvent e) {
-        // TODO: in futuro selezione porta
-        //String portName = "COM3"; // macOS: /dev/tty.usbmodemXXXX
-        String portName = "tty.BE-RCA";
-        ConnectionResult result = connectionController.connect(portName);
+        ConnectionResult result = connectionController.connect();
         switch (result) {
             case CONNECTED ->
                     {
@@ -102,6 +99,8 @@ public class MainFrame extends JFrame {
                     }
             case ALREADY_CONNECTED ->
                     showInfo("Arduino è già connesso");
+            case PORT_NOT_FOUND ->
+                    showError("Arduino non trovato.\nCollega il dispositivo USB.");
             case ERROR ->
                     showError("Impossibile connettersi ad Arduino");
         }

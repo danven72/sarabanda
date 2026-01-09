@@ -5,5 +5,6 @@ public enum ConnectionResult {
     DISCONNECTED,
     ALREADY_CONNECTED,
     ALREADY_DISCONNECTED,
+    PORT_NOT_FOUND,
     ERROR
 }
