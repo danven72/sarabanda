@@ -6,9 +6,11 @@ import it.sarabanda.app.arduino.ConnectionState;
 
 public class ConnectionController {
     private final ArduinoService arduinoService;
+    private final Runnable onDisconnectUi;
 
-    public ConnectionController(ArduinoService arduinoService) {
+    public ConnectionController(ArduinoService arduinoService, Runnable onDisconnectUi) {
         this.arduinoService = arduinoService;
+        this.onDisconnectUi = onDisconnectUi;
     }
 
     public ConnectionResult connect(String portName) {
@@ -31,12 +33,14 @@ public class ConnectionController {
         }
 
         arduinoService.disconnect();
+        onDisconnectUi.run();
         return ConnectionResult.DISCONNECTED;
     }
 
     public void disconnectIfNeeded() {
         if (arduinoService.getState() == ConnectionState.CONNECTED) {
             arduinoService.disconnect();
+            onDisconnectUi.run();
         }
     }
 

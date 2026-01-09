@@ -13,6 +13,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -31,8 +32,14 @@ public class MainFrame extends JFrame {
         numberPanel = new NumberPanel();
         add(numberPanel, BorderLayout.CENTER);
         ArduinoService arduinoService = new ArduinoServiceMock();
-        arduinoService.setNumberListener(number -> numberPanel.showNumber(number));
-        connectionController = new ConnectionController(arduinoService);
+        //ArduinoService arduinoService = new ArduinoServiceReal();
+        arduinoService.setNumberListener(number ->
+                SwingUtilities.invokeLater(() ->
+                        numberPanel.showNumber(number)
+                )
+        );
+        connectionController = new ConnectionController(arduinoService,
+                () -> SwingUtilities.invokeLater(numberPanel::clear));
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -84,7 +91,7 @@ public class MainFrame extends JFrame {
     private void onConnect(ActionEvent e) {
         // TODO: in futuro selezione porta
         //String portName = "COM3"; // macOS: /dev/tty.usbmodemXXXX
-        String portName = "/dev/tty.usbmodemXXXX";
+        String portName = "tty.BE-RCA";
         ConnectionResult result = connectionController.connect(portName);
         switch (result) {
             case CONNECTED ->
@@ -125,24 +132,6 @@ public class MainFrame extends JFrame {
                 this, msg, "Errore", JOptionPane.ERROR_MESSAGE);
     }
 
-    /*
-    private void enterFullScreen() {
-
-        if (fullScreenMode) {
-            return;
-        }
-
-        fullScreenMode = true;
-
-        setJMenuBar(null);      // nasconde menu
-        setUndecorated(true);  // niente bordi
-
-        revalidate();
-        repaint();
-    }
-
-     */
-
     private void applyFullScreen(boolean enable) {
 
         if (fullScreenMode == enable) {
@@ -172,22 +161,4 @@ public class MainFrame extends JFrame {
                     }
                 });
     }
-
-    /*
-    private void exitFullScreen() {
-
-        if (!fullScreenMode) {
-            return;
-        }
-
-        fullScreenMode = false;
-
-        setUndecorated(false);
-        setJMenuBar(mainMenuBar);
-
-        revalidate();
-        repaint();
-    }
-
-     */
 }

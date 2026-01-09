@@ -27,10 +27,8 @@ public class NumberPanel extends JPanel {
      * Metodo pubblico per visualizzare il numero
      */
     public void showNumber(int number) {
-        SwingUtilities.invokeLater(() -> {
-            numberLabel.setText(String.valueOf(number));
-            resizeFont();
-        });
+        numberLabel.setText(String.valueOf(number));
+        resizeFont();
     }
 
     /**
@@ -63,8 +61,6 @@ public class NumberPanel extends JPanel {
     }
 
     public void clear() {
-        SwingUtilities.invokeLater(() -> {
-            numberLabel.setText("");
-        });
+        numberLabel.setText("");
     }
 }
